@@ -30,13 +30,14 @@ class _LoginScreenState extends State<LoginScreen> {
       }),
     );
 
-    print(response);
+    print(response.body);
 
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
-      if (jsonResponse['role'] == 'cleaner') {
+      print(jsonResponse['data']['about']);
+      if (jsonResponse['data']['about'] == '2') {
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainCleanerPage()));
-      } else if (jsonResponse['role'] == 'client') {
+      } else if (jsonResponse['data']['about'] == '1') {
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainClientPage()));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

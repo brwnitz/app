@@ -1,783 +1,404 @@
 import 'package:cleanup/views/registeradress.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();
+
+  void _register() async {
+    String name = _nameController.text;
+    String email = _emailController.text;
+    String phone = _phoneController.text;
+    String address = _addressController.text;
+    String password = _passwordController.text;
+    String dob = _dobController.text;
+
+    var url = Uri.parse('http://192.168.0.223:3001/registerUser'); // Replace with your API endpoint
+    var response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'name': name,
+        'email': email,
+        'tell': phone,
+        'address': address,
+        'password': password,
+        'dob': dob,
+      }),
+    );
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // Handle successful registration
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration successful')),
+      );
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration failed')),
+      );
+    }
+  }
+
+  Widget _buildInputField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+    bool obscureText = false,
+    bool enabled = true,
+    GestureTapCallback? onTap,
+  }) {
+    return Container(
+      width: 387,
+      height: 82,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: 31,
+            child: Container(
+              width: 387,
+              height: 51,
+              decoration: BoxDecoration(
+                color: Color(0xFF251F2A),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 45,
+            top: 46,
+            child: GestureDetector(
+              onTap: onTap,
+              child: SizedBox(
+                width: 340,
+                height: 21,
+                child: TextField(
+                  controller: controller,
+                  obscureText: obscureText,
+                  enabled: enabled,
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: Color(0xCCFBFBFB),
+                      fontSize: 12,
+                      fontFamily: 'Nunito',
+                      fontWeight: FontWeight.w400,
+                      height: 1.40,
+                      letterSpacing: 0.24,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  style: TextStyle(color: Color(0xFFFBFBFB)),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Color(0xFFFBFBFB),
+                fontSize: 15,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.30,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required String text,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: 378,
+        height: 55,
+        padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 10),
+        decoration: ShapeDecoration(
+          color: color,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: Color(0xFFFBFBFB),
+              fontSize: 14,
+              fontFamily: 'Nunito',
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.28,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Container(
-    width: 414,
-    height: 971,
-    clipBehavior: Clip.antiAlias,
-    decoration: BoxDecoration(color: Color(0xFF1C1820)),
-    child: Stack(
-        children: [
-            Positioned(
-                left: 18,
-                top: 721,
-                child: Container(
-                    width: 378,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(color: Color(0xFF1C1820)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 56),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        child: Image.asset('assets/images/expand_left.png'),
+                      ),
+                    ),
+                    const SizedBox(width: 15),
+                    const Text(
+                      'Criar uma conta',
+                      style: TextStyle(
+                        color: Color(0xFFFBFBFB),
+                        fontSize: 20,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.40,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  label: 'Nome completo',
+                  hint: 'Seu nome completo',
+                  controller: _nameController,
+                ),
+                const SizedBox(height: 24),
+                _buildInputField(
+                  label: 'E-mail',
+                  hint: 'seuemail@dominio.com',
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildInputField(
+                        label: 'Celular',
+                        hint: '(00) 00000-0000',
+                        controller: _phoneController,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildInputField(
+                        label: 'Data de nascimento',
+                        hint: '00/00/0000',
+                        controller: _dobController,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildInputField(
+                  label: 'Endereço',
+                  hint: 'Rua Flores, 168 - Bairro Bom Jesus',
+                  controller: _addressController,
+                  enabled: false,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterAddress()));
+                  },
+                ),
+                const SizedBox(height: 24),
+                _buildInputField(
+                  label: 'Senha',
+                  hint: '*********',
+                  controller: _passwordController,
+                  obscureText: true,
+                ),
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: _register,
+                  child: Container(
+                    width: double.infinity,
                     height: 55,
                     padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 10),
-                    clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                        color: Color(0xFF7A1EFF),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      color: Color(0xFF7A1EFF),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                     ),
-                    child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                            Text(
-                                'Criar uma conta',
-                                style: TextStyle(
-                                    color: Color(0xFFFBFBFB),
-                                    fontSize: 14,
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.28,
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-            Positioned(
-                left: 16,
-                top: 68,
-                child: Container(
-                    width: 385,
-                    child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                                width: 24,
-                                height: 24,
-                                child: Image.asset('assets/images/expand_left.png'),
-                            )
-                          ),
-                            const SizedBox(width: 15),
-                            SizedBox(
-                                width: 304,
-                                child: Text(
-                                    'Criar uma conta',
-                                    style: TextStyle(
-                                        color: Color(0xFFFBFBFB),
-                                        fontSize: 20,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.40,
-                                    ),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-            Positioned(
-                left: 14,
-                top: 123,
-                child: Container(
-                    height: 506,
-                    child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                            Container(
-                                width: 387,
-                                height: 82,
-                                child: Stack(
-                                    children: [
-                                        Positioned(
-                                            left: 0,
-                                            top: 31,
-                                            child: Container(
-                                                width: 387,
-                                                height: 51,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xFF251F2A),
-                                                    borderRadius: BorderRadius.circular(3),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 45,
-                                            top: 46,
-                                            child: SizedBox(
-                                                width: 340,
-                                                height: 21,
-                                                child: Text(
-                                                    '  Seu nome completo',
-                                                    style: TextStyle(
-                                                        color: Color(0xCCFBFBFB),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Nunito',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.40,
-                                                        letterSpacing: 0.24,
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 0,
-                                            top: 0,
-                                            child: Text(
-                                                'Nome completo',
-                                                style: TextStyle(
-                                                    color: Color(0xFFFBFBFB),
-                                                    fontSize: 15,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.30,
-                                                ),
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                                width: 387,
-                                height: 82,
-                                child: Stack(
-                                    children: [
-                                        Positioned(
-                                            left: 0,
-                                            top: 31,
-                                            child: Container(
-                                                width: 387,
-                                                height: 51,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xFF251F2A),
-                                                    borderRadius: BorderRadius.circular(3),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 50,
-                                            top: 46,
-                                            child: SizedBox(
-                                                width: 335,
-                                                height: 21,
-                                                child: Text(
-                                                    ' seuemail@dominio.com',
-                                                    style: TextStyle(
-                                                        color: Color(0xCCFBFBFB),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Nunito',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.40,
-                                                        letterSpacing: 0.24,
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 0,
-                                            top: 0,
-                                            child: Text(
-                                                'E-mail',
-                                                style: TextStyle(
-                                                    color: Color(0xFFFBFBFB),
-                                                    fontSize: 15,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.30,
-                                                ),
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                                width: 175,
-                                height: 82,
-                                child: Stack(
-                                    children: [
-                                        Positioned(
-                                            left: 0,
-                                            top: 31,
-                                            child: Container(
-                                                width: 175,
-                                                height: 51,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xFF251F2A),
-                                                    borderRadius: BorderRadius.circular(3),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 50,
-                                            top: 46,
-                                            child: SizedBox(
-                                                width: 110,
-                                                height: 21,
-                                                child: Text(
-                                                    ' (00) 00000-0000',
-                                                    style: TextStyle(
-                                                        color: Color(0xCCFBFBFB),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Nunito',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.40,
-                                                        letterSpacing: 0.24,
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 0,
-                                            top: 0,
-                                            child: SizedBox(
-                                                width: 86.06,
-                                                child: Text(
-                                                    'Celular',
-                                                    style: TextStyle(
-                                                        color: Color(0xFFFBFBFB),
-                                                        fontSize: 15,
-                                                        fontFamily: 'Poppins',
-                                                        fontWeight: FontWeight.w600,
-                                                        letterSpacing: 0.30,
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                                width: 387,
-                                height: 82,
-                                child: Stack(
-                                    children: [
-                                        Positioned(
-                                            left: 0,
-                                            top: 31,
-                                            child: Container(
-                                                width: 387,
-                                                height: 51,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xFF251F2A),
-                                                    borderRadius: BorderRadius.circular(3),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 35,
-                                            top: 46,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterAddress()));
-                                              },
-                                              child: const SizedBox(
-                                                width: 350,
-                                                height: 21,
-                                                child: Text(
-                                                    '  Rua Flores, 168 - Bairo Bom Jesus',
-                                                    style: TextStyle(
-                                                        color: Color(0xCCFBFBFB),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Nunito',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.40,
-                                                        letterSpacing: 0.24,
-                                                    ),
-                                                ),
-                                            )),
-                                        ),
-                                        Positioned(
-                                            left: 0,
-                                            top: 0,
-                                            child: Text(
-                                                'Endereço',
-                                                style: TextStyle(
-                                                    color: Color(0xFFFBFBFB),
-                                                    fontSize: 15,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.30,
-                                                ),
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ),
-                            const SizedBox(height: 24),
-                            Container(
-                                width: 387,
-                                height: 82,
-                                child: Stack(
-                                    children: [
-                                        Positioned(
-                                            left: 0,
-                                            top: 31,
-                                            child: Container(
-                                                width: 387,
-                                                height: 51,
-                                                decoration: BoxDecoration(
-                                                    color: Color(0xFF251F2A),
-                                                    borderRadius: BorderRadius.circular(3),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 7,
-                                            top: 46,
-                                            child: SizedBox(
-                                                width: 378,
-                                                height: 21,
-                                                child: Text(
-                                                    ' *********',
-                                                    style: TextStyle(
-                                                        color: Color(0xCCFBFBFB),
-                                                        fontSize: 12,
-                                                        fontFamily: 'Nunito',
-                                                        fontWeight: FontWeight.w400,
-                                                        height: 1.40,
-                                                        letterSpacing: 6.36,
-                                                    ),
-                                                ),
-                                            ),
-                                        ),
-                                        Positioned(
-                                            left: 0,
-                                            top: 0,
-                                            child: Text(
-                                                'Senha',
-                                                style: TextStyle(
-                                                    color: Color(0xFFFBFBFB),
-                                                    fontSize: 15,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    letterSpacing: 0.30,
-                                                ),
-                                            ),
-                                        ),
-                                    ],
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-            Positioned(
-                left: 28,
-                top: 382,
-                child: Container(
-                    width: 20,
-                    height: 20,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-            Positioned(
-                left: 222,
-                top: 335,
-                child: Container(
-                    width: 176,
-                    height: 82,
-                    child: Stack(
-                        children: [
-                            Positioned(
-                                left: 0,
-                                top: 31,
-                                child: Container(
-                                    width: 175,
-                                    height: 51,
-                                    decoration: BoxDecoration(
-                                        color: Color(0xFF251F2A),
-                                        borderRadius: BorderRadius.circular(3),
-                                    ),
-                                ),
-                            ),
-                            Positioned(
-                                left: 53,
-                                top: 46,
-                                child: SizedBox(
-                                    width: 123,
-                                    height: 21,
-                                    child: Text(
-                                        '00/00/0000',
-                                        style: TextStyle(
-                                            color: Color(0xCCFBFBFB),
-                                            fontSize: 12,
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w400,
-                                            height: 1.40,
-                                            letterSpacing: 0.24,
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            Positioned(
-                                left: 0,
-                                top: 0,
-                                child: SizedBox(
-                                    width: 175,
-                                    child: Text(
-                                        'Data de nascimento',
-                                        style: TextStyle(
-                                            color: Color(0xFFFBFBFB),
-                                            fontSize: 15,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600,
-                                            letterSpacing: 0.30,
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-            Positioned(
-                left: 15,
-                top: 660,
-                child: Container(
-                    width: 24,
-                    height: 24,
-                    child: Stack(
-                        children: [
-                            Positioned(
-                                left: 3.60,
-                                top: 3.60,
-                                child: Container(
-                                    width: 16.80,
-                                    height: 16.80,
-                                    child: FlutterLogo(),
-                                ),
-                            ),
-                            Positioned(
-                                left: 7.20,
-                                top: 8.70,
-                                child: Container(
-                                    width: 9.60,
-                                    height: 6.60,
-                                    child: FlutterLogo(),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-            Positioned(
-                left: 49,
-                top: 661,
-                child: SizedBox(
-                    width: 339,
-                    child: Text.rich(
-                        TextSpan(
-                            children: [
-                                TextSpan(
-                                    text: 'Ao se inscrever, você concorda com os ',
-                                    style: TextStyle(
-                                        color: Color(0xCCFBFBFB),
-                                        fontSize: 14,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0.28,
-                                    ),
-                                ),
-                                TextSpan(
-                                    text: 'Termos de Serviço',
-                                    style: TextStyle(
-                                        color: Color(0xFF7E49FF),
-                                        fontSize: 14,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0.28,
-                                    ),
-                                ),
-                                TextSpan(
-                                    text: ' e a ',
-                                    style: TextStyle(
-                                        color: Color(0xCCFBFBFB),
-                                        fontSize: 14,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0.28,
-                                    ),
-                                ),
-                                TextSpan(
-                                    text: 'Política de Privacidade',
-                                    style: TextStyle(
-                                        color: Color(0xFF7E49FF),
-                                        fontSize: 14,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0.28,
-                                    ),
-                                ),
-                                TextSpan(
-                                    text: '.',
-                                    style: TextStyle(
-                                        color: Color(0xCCFBFBFB),
-                                        fontSize: 14,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0.28,
-                                    ),
-                                ),
-                            ],
+                    child: Center(
+                      child: Text(
+                        'Criar uma conta',
+                        style: TextStyle(
+                          color: Color(0xFFFBFBFB),
+                          fontSize: 14,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.28,
                         ),
+                      ),
                     ),
+                  ),
                 ),
-            ),
-            Positioned(
-                left: 23,
-                top: 788,
-                child: Container(
-                    width: 369,
-                    height: 19,
-                    child: Stack(
-                        children: [
-                            Positioned(
-                                left: 175.36,
-                                top: 0,
-                                child: SizedBox(
-                                    width: 17.21,
-                                    child: Text(
-                                        'ou',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            color: Color(0xCCFBFBFB),
-                                            fontSize: 14,
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w400,
-                                            letterSpacing: 0.28,
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            Positioned(
-                                left: 0,
-                                top: 8,
-                                child: Container(
-                                    width: 167.83,
-                                    decoration: ShapeDecoration(
-                                        color: Color(0xCCFBFBFB),
-                                        shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                                width: 1,
-                                                strokeAlign: BorderSide.strokeAlignCenter,
-                                                color: Color(0xCCFBFBFB),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                            Positioned(
-                                left: 201.17,
-                                top: 8,
-                                child: Container(
-                                    width: 167.83,
-                                    decoration: ShapeDecoration(
-                                        color: Color(0xCCFBFBFB),
-                                        shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                                width: 1,
-                                                strokeAlign: BorderSide.strokeAlignCenter,
-                                                color: Color(0xCCFBFBFB),
-                                            ),
-                                        ),
-                                    ),
-                                ),
-                            ),
-                        ],
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Ao se inscrever, você concorda com os ',
+                      style: TextStyle(
+                        color: Color(0xCCFBFBFB),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
                     ),
-                ),
-            ),
-            Positioned(
-                left: 114,
-                top: 900,
-                child: Text.rich(
-                    TextSpan(
-                        children: [
-                            TextSpan(
-                                text: 'Já tem uma conta?',
-                                style: TextStyle(
-                                    color: Color(0xCCFBFBFB),
-                                    fontSize: 14,
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.28,
-                                ),
-                            ),
-                            TextSpan(
-                                text: ' ',
-                                style: TextStyle(
-                                    color: Color(0xFF5A5A5A),
-                                    fontSize: 14,
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.28,
-                                ),
-                            ),
-                            TextSpan(
-                                text: 'Entrar',
-                                style: TextStyle(
-                                    color: Color(0xFF7E49FF),
-                                    fontSize: 14,
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.28,
-                                ),
-                            ),
-                        ],
+                    Text(
+                      'Termos de Serviço',
+                      style: TextStyle(
+                        color: Color(0xFF7E49FF),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
+                    Text(
+                      ' e a ',
+                      style: TextStyle(
+                        color: Color(0xCCFBFBFB),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
+                    ),
+                    Text(
+                      'Política de Privacidade',
+                      style: TextStyle(
+                        color: Color(0xFF7E49FF),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
+                    ),
+                    Text(
+                      '.',
+                      style: TextStyle(
+                        color: Color(0xCCFBFBFB),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
+                    ),
+                  ],
                 ),
-            ),
-            Positioned(
-                left: 18,
-                top: 818,
-                child: Container(
-                    width: 378,
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    // Handle WhatsApp registration
+                  },
+                  child: Container(
+                    width: double.infinity,
                     height: 55,
                     padding: const EdgeInsets.symmetric(horizontal: 42, vertical: 10),
-                    clipBehavior: Clip.antiAlias,
                     decoration: ShapeDecoration(
-                        color: Color(0xFF4AAF57),
-                        shape: RoundedRectangleBorder(
-                            side: BorderSide(width: 1, color: Color(0xFF4AAF57)),
-                            borderRadius: BorderRadius.circular(6),
+                      color: Color(0xFF4AAF57),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Color(0xFF4AAF57)),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cadastrar-se pelo Whatsapp',
+                        style: TextStyle(
+                          color: Color(0xFFFBFBFB),
+                          fontSize: 14,
+                          fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 0.28,
                         ),
+                      ),
                     ),
-                    child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                            Text(
-                                '          Cadastrar-se pelo Whatsapp',
-                                style: TextStyle(
-                                    color: Color(0xFFFBFBFB),
-                                    fontSize: 14,
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: 0.28,
-                                ),
-                            ),
-                        ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Já tem uma conta?',
+                      style: TextStyle(
+                        color: Color(0xCCFBFBFB),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
                     ),
-                ),
-            ),
-            Positioned(
-                left: 391,
-                top: 617,
-                child: Opacity(
-                    opacity: 0.90,
-                    child: Transform(
-                        transform: Matrix4.identity()..translate(0.0, 0.0)..rotateZ(-3.14),
-                        child: Container(
-                            width: 24,
-                            height: 24,
-                            child: Stack(
-                                children: [
-                                    Positioned(
-                                        left: 4,
-                                        top: 7,
-                                        child: Container(
-                                            width: 17,
-                                            height: 10,
-                                            child: FlutterLogo(),
-                                        ),
-                                    ),
-                                    Positioned(
-                                        left: 9,
-                                        top: 15,
-                                        child: Container(
-                                            width: 7,
-                                            height: 6,
-                                            decoration: ShapeDecoration(
-                                                shape: StarBorder.polygon(
-                                                    side: BorderSide(
-                                                        width: 1,
-                                                        strokeAlign: BorderSide.strokeAlignCenter,
-                                                        color: Color(0xFFB8B8B8),
-                                                    ),
-                                                    sides: 7,
-                                                ),
-                                            ),
-                                        ),
-                                    ),
-                                ],
-                            ),
-                        ),
+                    Text(
+                      ' ',
+                      style: TextStyle(
+                        color: Color(0xFF5A5A5A),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
                     ),
+                    Text(
+                      'Entrar',
+                      style: TextStyle(
+                        color: Color(0xFF7E49FF),
+                        fontSize: 14,
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w400,
+                        letterSpacing: 0.28,
+                      ),
+                    ),
+                  ],
                 ),
+              ],
             ),
-            Positioned(
-                left: 96,
-                top: 833,
-                child: Container(
-                    width: 25,
-                    height: 25,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-            Positioned(
-                left: 28,
-                top: 170,
-                child: Container(
-                    width: 20,
-                    height: 20,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-            Positioned(
-                left: 28,
-                top: 276,
-                child: Container(
-                    width: 20,
-                    height: 20,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-            Positioned(
-                left: 237,
-                top: 382,
-                child: Container(
-                    width: 20,
-                    height: 20,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-            Positioned(
-                left: 26,
-                top: 488,
-                child: Container(
-                    width: 20,
-                    height: 20,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(),
-                    child: FlutterLogo(),
-                ),
-            ),
-        ],
-    ),
-)),
+          ),
+        ),
+      ),
     );
   }
 }
